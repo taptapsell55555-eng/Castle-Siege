@@ -1,69 +1,41 @@
 <!DOCTYPE html><html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>🏰 Castle Siege 3D</title>
+<title>🏰 Castle Siege 3D – Prototype</title>
 <style>
-  body {
-    margin: 0;
-    background: linear-gradient(to bottom, #1a1a1a, #3d3d3d);
-    font-family: 'Segoe UI', sans-serif;
-    color: white;
-    text-align: center;
-  }
-  h1 {
-    font-size: 3em;
-    margin-top: 1em;
-    color: gold;
-    text-shadow: 2px 2px 8px black;
-  }
-  .menu {
-    margin-top: 2em;
-  }
-  .btn {
-    background: #ffcc00;
-    color: black;
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: 1.5em;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .btn:hover {
-    background: #ffaa00;
-  }
-  footer {
-    position: fixed;
-    bottom: 10px;
-    width: 100%;
-    font-size: 0.8em;
-    color: #bbb;
-  }
+  body { font-family: Arial, sans-serif; background: #000; color: white; text-align: center; margin: 0; }
+  h1 { font-size: 3em; margin-top: 20px; }
+  .menu { margin-top: 40px; }
+  button { padding: 15px 30px; margin: 10px; font-size: 1.2em; border: none; border-radius: 10px; cursor: pointer; }
+  .play-btn { background: #28a745; color: white; }
+  .dev-btn { background: #ffc107; color: black; }
+  .shop-btn { background: #17a2b8; color: white; }
 </style>
 </head>
 <body>
   <h1>🏰 Castle Siege 3D</h1>
   <div class="menu">
-    <button class="btn" onclick="startGame('3v3')">เริ่มเกม 3v3</button>
-    <button class="btn" onclick="startGame('5v5')">เริ่มเกม 5v5</button>
-    <button class="btn" onclick="openShop()">ร้านค้า</button>
-    <button class="btn" onclick="openDevMode()">โหมดผู้พัฒนา</button>
-  </div>
-  <footer>รุ่นทดสอบ – กราฟิกและฟีเจอร์อยู่ระหว่างพัฒนา</footer><script>
-function startGame(mode) {
-  alert('เริ่มเกมโหมด ' + mode + ' – ระบบอยู่ระหว่างการพัฒนา');
-}
-function openShop() {
-  alert('ร้านค้ากำลังพัฒนา – ผู้พัฒนาจะเพิ่มสินค้าภายหลัง');
-}
-function openDevMode() {
-  let pass = prompt('กรอกรหัสโหมดผู้พัฒนา:');
-  if(pass === '7735771234') {
-    alert('เข้าสู่โหมดผู้พัฒนา – สามารถตั้งค่าพลัง, ปรับแต่งภูมิทัศน์ และเพิ่มวัตถุได้');
-  } else {
-    alert('รหัสไม่ถูกต้อง');
-  }
-}
-</script></body>
+    <button class="play-btn" onclick="startGame('pvp3v3')">โหมดผู้เล่น 3v3 (ออนไลน์)</button>
+    <button class="play-btn" onclick="startGame('pvp5v5')">โหมดผู้เล่น 5v5 (ออนไลน์)</button>
+    <button class="play-btn" onclick="startGame('bot')">โหมดเล่นกับบอท</button>
+    <button class="shop-btn" onclick="openShop()">ร้านค้า</button>
+    <button class="dev-btn" onclick="openDevMode()">โหมดผู้พัฒนา</button>
+  </div>  <script>
+    function startGame(mode) {
+      alert('เริ่มเกมโหมด: ' + mode);
+      // TODO: เชื่อมต่อระบบเกมจริง
+    }
+    function openShop() {
+      alert('ร้านค้ายังไม่มีสินค้า – รอผู้พัฒนาเพิ่ม');
+    }
+    function openDevMode() {
+      const pass = prompt('กรอกรหัสผ่านโหมดผู้พัฒนา:');
+      if (pass === '7735771234') {
+        alert('เข้าสู่โหมดผู้พัฒนา');
+        // TODO: เปิดหน้า dev mode พร้อมการตั้งค่าและตกแต่งแผนที่
+      } else {
+        alert('รหัสไม่ถูกต้อง');
+      }
+    }
+  </script></body>
 </html>
