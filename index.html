@@ -1,588 +1,69 @@
 <!DOCTYPE html><html lang="th">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>Castle Siege 3D – Prototype</title>
+<meta charset="UTF-8">
+<title>🏰 Castle Siege 3D</title>
 <style>
-  :root{
-    --ui-bg:#0f172a;--ui2:#111827;--txt:#e5e7eb;--acc:#22c55e;--danger:#ef4444;--warn:#f59e0b;--mut:#9ca3af;
+  body {
+    margin: 0;
+    background: linear-gradient(to bottom, #1a1a1a, #3d3d3d);
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    text-align: center;
   }
-  html,body{margin:0;height:100%;background:#0b1220;color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;}
-  #gameCanvas{position:fixed;inset:0;background:#000;display:block}
-  /* Menus */
-  .panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.9));backdrop-filter:blur(4px);}
-  .card{width:min(920px,92vw);max-height:90vh;overflow:auto;background:var(--ui-bg);border:1px solid #243044;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-  .card h1,.card h2,.card h3{margin:0 0 .5rem}
-  .card header{display:flex;gap:16px;align-items:center;padding:16px 20px;border-bottom:1px solid #223;}
-  .card header .coins{margin-left:auto;font-weight:700}
-  .card .body{padding:16px 20px;}
-  .grid{display:grid;gap:12px}
-  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .btn{cursor:pointer;background:#1f2937;color:#e5e7eb;border:1px solid #334155;padding:10px 14px;border-radius:12px;font-weight:700}
-  .btn:hover{filter:brightness(1.1)}
-  .btn.acc{background:var(--acc);color:#062810;border-color:#119c4a}
-  .btn.muted{background:#101826;color:#9ca3af}
-  .btn.danger{background:var(--danger)}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .mut{color:var(--mut)}
-  .hidden{display:none !important}
-  .small{font-size:.9rem}
-  .input{background:#0b1322;border:1px solid #2a364a;color:#e5e7eb;border-radius:10px;padding:10px 12px}/* HUD */ #hud{position:fixed;inset:0;pointer-events:none} #timer{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);padding:6px 10px;border-radius:10px;border:1px solid #344;pointer-events:none} #teamTag{position:fixed;top:10px;left:10px;background:rgba(0,0,0,.55);padding:6px 10px;border-radius:10px;border:1px solid #344} #victory{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(2px)} #victory .box{background:#0b1424;border:1px solid #244;border-radius:18px;padding:24px;min-width:280px;text-align:center}
-
-/* Virtual controls */ #joystick{position:fixed;left:18px;bottom:18px;width:140px;height:140px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid #2a364a} #joyInner{position:absolute;left:50%;top:50%;width:64px;height:64px;border-radius:999px;background:rgba(255,255,255,.12);transform:translate(-50%,-50%)} .actBtn{position:fixed;right:18px;bottom:18px;width:82px;height:82px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid #2a364a;color:#fff;font-weight:900;pointer-events:auto} .skill{right:118px;bottom:98px} .skill2{right:18px;bottom:118px} .draggable{touch-action:none}
-
-/* In-game small panels */ #classPicker{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)} #classPicker .box{background:#0b1424;border:1px solid #244;border-radius:18px;padding:18px;max-width:680px}
-
-/* Flag HP bars */ .barWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;display:flex;gap:8px} .bar{width:220px;height:14px;background:#1f2937;border:1px solid #334155;border-radius:999px;overflow:hidden} .bar>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a)}
-
-a.link{color:#8bdcff} </style>
-
+  h1 {
+    font-size: 3em;
+    margin-top: 1em;
+    color: gold;
+    text-shadow: 2px 2px 8px black;
+  }
+  .menu {
+    margin-top: 2em;
+  }
+  .btn {
+    background: #ffcc00;
+    color: black;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 1.5em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .btn:hover {
+    background: #ffaa00;
+  }
+  footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    font-size: 0.8em;
+    color: #bbb;
+  }
+</style>
 </head>
 <body>
-<canvas id="gameCanvas"></canvas><!-- MAIN MENU --><div id="menu" class="panel">
-  <div class="card">
-    <header>
-      <h1>🏰 Castle Siege 3D</h1>
-      <div class="coins">💰 <span id="coins">0</span> B</div>
-    </header>
-    <div class="body grid g2">
-      <section>
-        <h2>โหมดผู้เล่น</h2>
-        <div class="row">
-          <button class="btn acc" id="btn3v3">เริ่มเกม 3v3</button>
-          <button class="btn acc" id="btn5v5">เริ่มเกม 5v5</button>
-          <button class="btn" id="btnHow">วิธีเล่น</button>
-        </div>
-        <hr style="border-color:#223;margin:16px 0">
-        <h3>ร้านค้า (สกิน)</h3>
-        <div class="grid g3" id="shop">
-          <!-- skins will populate here -->
-        </div>
-      </section>
-      <section>
-        <h2>ตั้งค่า</h2>
-        <p class="small mut">ตั้งค่าปุ่มควบคุมในเกมได้ภายในหน้าตั้งค่า</p>
-        <button class="btn" id="btnSettings">เปิดหน้าตั้งค่า</button>
-        <hr style="border-color:#223;margin:16px 0">
-        <h3>โหมดผู้พัฒนา</h3>
-        <div class="row">
-          <input id="devCode" class="input" placeholder="เข้าสู่ (ต้องมีรหัส)"/>
-          <button class="btn" id="btnDevEnter">ยืนยัน</button>
-        </div>
-        <p class="small mut">รหัสคือ 7735771234 (เก็บเป็นความลับ)</p>
-        <div id="devTools" class="hidden">
-          <h3>🛠 เครื่องมือผู้พัฒนา</h3>
-          <div class="grid g3">
-            <label>เลือกวัตถุที่จะวาง
-              <select id="placeType" class="input" style="width:100%">
-                <option value="wall">กำแพง</option>
-                <option value="tower">หอคอย</option>
-                <option value="river">แม่น้ำ</option>
-                <option value="grass">สนามหญ้า</option>
-                <option value="tree">ต้นไม้</option>
-                <option value="cannon">ปืนใหญ่</option>
-              </select>
-            </label>
-            <div>
-              <h4>แผนที่</h4>
-              <div class="row" style="margin:6px 0">
-                <input id="mapName" class="input" placeholder="ชื่อแผนที่" style="flex:1"/>
-                <button id="btnSaveMap" class="btn acc">บันทึก</button>
-                <button id="btnClearMap" class="btn danger">ล้างแผนที่</button>
-              </div>
-              <div class="row">
-                <select id="mapList" class="input" style="flex:1"></select>
-                <button id="btnLoadMap" class="btn">โหลด</button>
-              </div>
-            </div>
-            <div>
-              <h4>ค่าสมดุล</h4>
-              <div class="grid">
-                <label>HP เสาธง <input id="flagHP" class="input" type="number" value="2000"/></label>
-                <label>เกราะเสาธง <input id="flagArmor" class="input" type="number" value="50"/></label>
-                <label>HP บอท <input id="botHP" class="input" type="number" value="200"/></label>
-                <label>พลังโจมตีบอท <input id="botATK" class="input" type="number" value="15"/></label>
-              </div>
-            </div>
-          </div>
-          <p class="small mut">*คลิกบนพื้นสีเขียวเพื่อวางวัตถุ</p>
-        </div>
-      </section>
-    </div>
+  <h1>🏰 Castle Siege 3D</h1>
+  <div class="menu">
+    <button class="btn" onclick="startGame('3v3')">เริ่มเกม 3v3</button>
+    <button class="btn" onclick="startGame('5v5')">เริ่มเกม 5v5</button>
+    <button class="btn" onclick="openShop()">ร้านค้า</button>
+    <button class="btn" onclick="openDevMode()">โหมดผู้พัฒนา</button>
   </div>
-</div><!-- SETTINGS --><div id="settings" class="panel hidden">
-  <div class="card">
-    <header>
-      <button class="btn" id="backMenu">⬅ กลับเมนู</button>
-      <h2 style="margin-left:8px">⚙️ ตั้งค่า</h2>
-    </header>
-    <div class="body grid g3">
-      <section>
-        <h3>ค่าพื้นฐาน (ผู้เล่นทั่วไป)</h3>
-        <div class="grid">
-          <label>HP ผู้เล่น <input id="pHP" class="input" type="number" value="400"/></label>
-          <label>เกราะผู้เล่น <input id="pArmor" class="input" type="number" value="40"/></label>
-          <label>พลังโจมตีผู้เล่น <input id="pATK" class="input" type="number" value="35"/></label>
-          <label>คูลดาวน์สกิล (วินาที) <input id="pCD" class="input" type="number" value="8"/></label>
-          <label>เวลาเกม (นาที) <input id="gameMin" class="input" type="number" value="10"/></label>
-        </div>
-        <p class="mut small">ค่าทั้งหมดจะถูกบันทึกอัตโนมัติ</p>
-      </section>
-      <section>
-        <h3>เข้าสู่โหมดผู้พัฒนา</h3>
-        <div class="row">
-          <input id="devCode2" class="input" placeholder="รหัสโหมดผู้พัฒนา"/>
-          <button class="btn" id="btnDevEnter2">ยืนยัน</button>
-        </div>
-      </section>
-      <section>
-        <h3>🛠 เครื่องมือผู้พัฒนา (ด่วน)</h3>
-        <div class="grid">
-          <p class="small mut">*ลากและวางวัตถุบนพื้นสีเขียวเพื่อจัดฉาก</p>
-        </div>
-      </section>
-    </div>
-  </div>
-</div><!-- HOW TO PLAY --><div id="how" class="panel hidden">
-  <div class="card">
-    <header>
-      <button class="btn" id="backMenu2">⬅ กลับเมนู</button>
-      <h2>📘 วิธีเล่น</h2>
-    </header>
-    <div class="body grid">
-      <p>เป้าหมาย: บุกทำลาย <b>เสาธง</b> ภายในปราสาทของศัตรูภายในเวลาที่กำหนด (ค่าเริ่มต้น 10 นาที) หากหมดเวลาและยังไม่มีฝ่ายใดทำลายได้ จะถือว่าเสมอ</p>
-      <ul>
-        <li>มุมมองบุคคลที่สาม (กล้องติดตามหลังตัวละคร)</li>
-        <li>จอยเสมือนอยู่ซ้ายล่าง ปุ่มโจมตี + สกิล 2 ปุ่มอยู่ขวาล่าง (สามารถย้ายตำแหน่งได้ในโหมดจัดวาง)</li>
-        <li>เลือกสายอาชีพก่อนเริ่ม: ธนู, ดาบ, ค้อน, มีดสั้น, โล่ใหญ่, ปาระเบิด</li>
-        <li>ชนะแล้วได้รับ 100B เพื่อซื้อสกินในร้านค้า</li>
-      </ul>
-    </div>
-  </div>
-</div><!-- HUD IN GAME --><div id="hud" class="hidden">
-  <div id="teamTag">ทีม <b id="teamName">🔵</b></div>
-  <div id="timer">10:00</div>
-  <div class="barWrap">
-    <div class="bar"><i id="flagBar" style="width:100%"></i></div>
-    <div class="bar"><i id="pBar" style="width:100%"></i></div>
-  </div>
-  <div id="victory" class="hidden">
-    <div class="box">
-      <h2 id="victoryTitle">ชัยชนะ!</h2>
-      <div class="row" style="justify-content:center;margin-top:12px">
-        <button class="btn" id="btnBackHome">กลับเมนู</button>
-        <button class="btn acc" id="btnReplay">เล่นซ้ำ</button>
-      </div>
-    </div>
-  </div>
-</div><!-- Class Picker --><div id="classPicker" class="hidden">
-  <div class="box">
-    <h3>เลือกสายอาชีพ</h3>
-    <div class="row" style="flex-wrap:wrap">
-      <button class="btn" data-class="archer">ธนู</button>
-      <button class="btn" data-class="sword">ดาบ</button>
-      <button class="btn" data-class="hammer">ค้อน</button>
-      <button class="btn" data-class="dagger">มีดสั้น</button>
-      <button class="btn" data-class="shield">โล่ใหญ่</button>
-      <button class="btn" data-class="bomb">ปาระเบิด</button>
-      <button class="btn acc" id="startBattle">เริ่มเกม</button>
-    </div>
-    <p class="small mut">*สกิลจะแตกต่างกันตามสาย</p>
-  </div>
-</div><!-- Controls --><div id="joystick" class="draggable hidden"><div id="joyInner"></div></div>
-<button id="btnAtk" class="actBtn draggable hidden">⚔</button>
-<button id="btnS1" class="actBtn skill draggable hidden">S1</button>
-<button id="btnS2" class="actBtn skill2 draggable hidden">S2</button><script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script><script>
-(() => {
-  // ===== Local Storage helpers =====
-  const LS = {
-    get(k,def){ try{ const v=JSON.parse(localStorage.getItem(k)); return (v===null||v===undefined)?def:v }catch(e){ return def }},
-    set(k,v){ localStorage.setItem(k,JSON.stringify(v)) }
-  };
-  // ===== Economy & settings =====
-  const state = {
-    coins: LS.get('cs3d_coins',0),
-    skin: LS.get('cs3d_skin','default'),
-    settings: LS.get('cs3d_settings',{pHP:400,pArmor:40,pATK:35,pCD:8,gameMin:10}),
-    maps: LS.get('cs3d_maps',{}),
-    dev:false,
-    chosenClass:'sword',
-    mode:'3v3',
-  };
-  const shopSkins = [
-    {id:'default',name:'สกินเริ่มต้น – ฟรี', price:0, color:0x3ba7ff},
-    {id:'crimson',name:'Crimson – 60B', price:60, color:0xd12a2a},
-    {id:'jade',name:'Jade – 60B', price:60, color:0x13c29a},
-    {id:'royal',name:'Royal – 80B', price:80, color:0x6e59ff},
-  ];
-
-  // ===== DOM =====
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const elCoins = $('#coins');
-  const menu = $('#menu');
-  const settings = $('#settings');
-  const how = $('#how');
-  const classPicker = $('#classPicker');
-  const hud = $('#hud');
-  const teamName = $('#teamName');
-  const timerEl = $('#timer');
-  const flagBar = $('#flagBar');
-  const pBar = $('#pBar');
-  const victory = $('#victory');
-  const victoryTitle = $('#victoryTitle');
-
-  // Build shop
-  function renderShop(){
-    $('#shop').innerHTML = '';
-    shopSkins.forEach(s=>{
-      const d = document.createElement('div');
-      d.className='card small';
-      d.style.padding='10px';
-      d.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center">
-        <div>${s.name}</div>
-        <button class="btn ${state.skin===s.id?'muted':''}" data-buy="${s.id}">${state.skin===s.id?'ใช้แล้ว':'ซื้อ/ใช้'}</button></div>`;
-      $('#shop').appendChild(d);
-    });
+  <footer>รุ่นทดสอบ – กราฟิกและฟีเจอร์อยู่ระหว่างพัฒนา</footer><script>
+function startGame(mode) {
+  alert('เริ่มเกมโหมด ' + mode + ' – ระบบอยู่ระหว่างการพัฒนา');
+}
+function openShop() {
+  alert('ร้านค้ากำลังพัฒนา – ผู้พัฒนาจะเพิ่มสินค้าภายหลัง');
+}
+function openDevMode() {
+  let pass = prompt('กรอกรหัสโหมดผู้พัฒนา:');
+  if(pass === '7735771234') {
+    alert('เข้าสู่โหมดผู้พัฒนา – สามารถตั้งค่าพลัง, ปรับแต่งภูมิทัศน์ และเพิ่มวัตถุได้');
+  } else {
+    alert('รหัสไม่ถูกต้อง');
   }
-  function updateCoins(){ elCoins.textContent = state.coins; LS.set('cs3d_coins',state.coins); }
-  renderShop(); updateCoins();
-
-  $('#shop').addEventListener('click', (e)=>{
-    const id = e.target.getAttribute('data-buy');
-    if(!id) return;
-    const s = shopSkins.find(x=>x.id===id);
-    if(!s) return;
-    if(state.skin!==id){
-      if(s.price>state.coins){ alert('เหรียญไม่พอ'); return; }
-      state.coins -= s.price; updateCoins();
-      state.skin = id; LS.set('cs3d_skin',id);
-    }
-    renderShop();
-  });
-
-  // Settings bind
-  function bindSettings(){
-    const st = state.settings;
-    $('#pHP').value=st.pHP; $('#pArmor').value=st.pArmor; $('#pATK').value=st.pATK; $('#pCD').value=st.pCD; $('#gameMin').value=st.gameMin;
-    ['pHP','pArmor','pATK','pCD','gameMin'].forEach(id=>{
-      $('#'+id).addEventListener('change',()=>{ state.settings[id]=Number($('#'+id).value)||0; LS.set('cs3d_settings',state.settings); })
-    });
-  }
-
-  // Dev tools
-  function refreshMapList(){
-    const list = $('#mapList'); list.innerHTML='';
-    Object.keys(state.maps).forEach(name=>{ const opt=document.createElement('option'); opt.value=name; opt.textContent=name; list.appendChild(opt) });
-  }
-  function enterDev(){ state.dev=true; $('#devTools').classList.remove('hidden'); alert('เข้าสู่โหมดผู้พัฒนาแล้ว'); refreshMapList(); }
-
-  // Panels
-  $('#btnSettings').onclick=()=>{ menu.classList.add('hidden'); settings.classList.remove('hidden'); bindSettings(); };
-  $('#backMenu').onclick=()=>{ settings.classList.add('hidden'); menu.classList.remove('hidden'); };
-  $('#btnHow').onclick=()=>{ menu.classList.add('hidden'); how.classList.remove('hidden'); };
-  $('#backMenu2').onclick=()=>{ how.classList.add('hidden'); menu.classList.remove('hidden'); };
-  $('#btnDevEnter').onclick=()=>{ if($('#devCode').value==='7735771234') enterDev(); else alert('รหัสไม่ถูกต้อง'); };
-  $('#btnDevEnter2').onclick=()=>{ if($('#devCode2').value==='7735771234') enterDev(); else alert('รหัสไม่ถูกต้อง'); };
-
-  // Start buttons
-  $('#btn3v3').onclick=()=>{ state.mode='3v3'; openClassPicker(); };
-  $('#btn5v5').onclick=()=>{ state.mode='5v5'; openClassPicker(); };
-
-  // Class picker
-  function openClassPicker(){
-    classPicker.classList.remove('hidden');
-  }
-  $$('#classPicker .btn[data-class]').forEach(b=> b.onclick=()=>{ state.chosenClass=b.getAttribute('data-class') });
-
-  // ====== Three.js Scene ======
-  const canvas = document.getElementById('gameCanvas');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a0f1a);
-  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 2000);
-  camera.position.set(0,6,12);
-
-  const hemi = new THREE.HemisphereLight(0xffffff,0x223344,1.0); hemi.position.set(0,30,0); scene.add(hemi);
-  const dir = new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(10,20,10); dir.castShadow=true; scene.add(dir);
-
-  const clock = new THREE.Clock();
-
-  // ground
-  const groundMat = new THREE.MeshStandardMaterial({color:0x1f5130, roughness:1, metalness:0});
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200), groundMat); ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
-
-  // castle simple
-  const castleGroup = new THREE.Group(); scene.add(castleGroup);
-  function buildCastle(){
-    castleGroup.clear();
-    const wallMat = new THREE.MeshStandardMaterial({color:0x6b7280});
-    const gateMat = new THREE.MeshStandardMaterial({color:0x9ca3af});
-    const walls = [
-      [0,1,0, 12,4,1], // front
-      [0,1,-12, 12,4,1],
-      [-6,1,-6, 1,4,12],
-      [6,1,-6, 1,4,12],
-    ];
-    walls.forEach(w=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(w[3],w[4],w[5]), wallMat); m.position.set(w[0],w[1],w[2]); m.castShadow=m.receiveShadow=true; castleGroup.add(m); });
-    const gate = new THREE.Mesh(new THREE.BoxGeometry(4,4,1), gateMat); gate.position.set(0,2,0.6); gate.name='gate'; gate.userData={hp:600, armor:20}; castleGroup.add(gate);
-    // flag pole inside
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,5,12), new THREE.MeshStandardMaterial({color:0xdddddd})); pole.position.set(0,2.5,-7); pole.name='flagPole'; castleGroup.add(pole);
-    const flag = new THREE.Mesh(new THREE.BoxGeometry(1.6,1,0.1), new THREE.MeshStandardMaterial({color:0x1565c0})); flag.position.set(1.0,3.5,-7); flag.name='flag'; flag.userData={hp: Number($('#flagHP').value)||2000, armor: Number($('#flagArmor').value)||50, maxHP: Number($('#flagHP').value)||2000}; castleGroup.add(flag);
-  }
-  buildCastle();
-
-  // Player & bots
-  const objects = [];
-  const projectiles = [];
-  const bots = [];
-  const cannons = [];
-
-  function makePlayer(){
-    const col = shopSkins.find(s=>s.id===state.skin)?.color || 0x3ba7ff;
-    const mat = new THREE.MeshStandardMaterial({color: col});
-    const body = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), mat); body.castShadow=true; body.position.set(0,1,8);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.5,16,16), new THREE.MeshStandardMaterial({color:0xffe0bd})); head.position.set(0,2.1,0); body.add(head);
-    body.userData = {type:'player', hp: state.settings.pHP, maxHP: state.settings.pHP, armor: state.settings.pArmor, atk: state.settings.pATK, cd: state.settings.pCD, dead:false, respawn:0, class: state.chosenClass};
-    scene.add(body); objects.push(body); return body;
-  }
-  function makeBot(pos){
-    const mat = new THREE.MeshStandardMaterial({color:0xff4444});
-    const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.4,1.2,4,8), mat); m.position.copy(pos); m.castShadow=true;
-    m.userData={type:'bot', hp: Number($('#botHP').value)||200, armor: 10, atk: Number($('#botATK').value)||15, dead:false, respawn:0};
-    scene.add(m); bots.push(m); return m;
-  }
-  function makeElephant(x,z,color){ // simple big unit
-    const mat = new THREE.MeshStandardMaterial({color});
-    const m = new THREE.Mesh(new THREE.BoxGeometry(2,3,4), mat); m.position.set(x,1.5,z); m.userData={type:'elephant', hp:500, armor:30, atk:45, cd:6, t:0}; m.castShadow=true; scene.add(m); bots.push(m); return m;
-  }
-
-  // Cannon (decor + shooting)
-  function makeCannon(x,z){
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.8,0.6,12), new THREE.MeshStandardMaterial({color:0x333}));
-    base.position.set(x,0.3,z); base.castShadow=true; scene.add(base);
-    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.25,2,12), new THREE.MeshStandardMaterial({color:0x555}));
-    barrel.rotation.z=Math.PI/2; barrel.position.set(x,0.8,z+1.2); scene.add(barrel);
-    const gun={base,barrel,t:0}; cannons.push(gun); return gun;
-  }
-
-  // Place starter cannons
-  for(let i=-4;i<=4;i+=2){ makeCannon(i,-6.5) }
-
-  // Spawners
-  function spawnWave(){
-    const count = state.mode==='3v3'?3:5;
-    for(let i=0;i<count;i++) makeBot(new THREE.Vector3(-6+i*3,1,12+Math.random()*2));
-    makeElephant(8,12,0x888888);
-  }
-
-  // Simple physics helpers
-  function raycastGround(x,y){
-    const ray = new THREE.Raycaster();
-    const ndc = new THREE.Vector2((x/innerWidth)*2-1, -(y/innerHeight)*2+1);
-    ray.setFromCamera(ndc, camera);
-    const inter = ray.intersectObject(ground)[0];
-    return inter? inter.point : null;
-  }
-
-  // Projectiles
-  function shoot(from,to,spd,owner){
-    const dir = new THREE.Vector3().subVectors(to,from).normalize();
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.15,8,8), new THREE.MeshStandardMaterial({color:0xffffaa}));
-    m.position.copy(from.clone().add(dir.clone().multiplyScalar(1))); m.userData={v:dir.multiplyScalar(spd), ttl:4, owner};
-    scene.add(m); projectiles.push(m);
-  }
-
-  // Damage calc
-  function applyDamage(obj, dmg){
-    const armor = obj.userData.armor||0; const real = Math.max(1, dmg - armor*0.2);
-    obj.userData.hp -= real; if(obj.userData.hp<=0){ obj.userData.dead=true; obj.visible=false; obj.userData.respawn = performance.now()+ (obj.userData.type==='player'? 60000 : 40000); }
-  }
-
-  // Input / joystick
-  const joystick = $('#joystick'); const joyInner = $('#joyInner');
-  const btnAtk=$('#btnAtk'), btnS1=$('#btnS1'), btnS2=$('#btnS2');
-  const ctrl = {vx:0,vz:0,drag:null,buttons:{atk:false,s1:false,s2:false}, canDrag:null};
-
-  function makeDraggable(el, lsKey){
-    const pos = LS.get(lsKey,null);
-    if(pos){ el.style.left=pos.x+'px'; el.style.top=pos.y+'px'; el.style.right=''; el.style.bottom=''; }
-    let dragging=false, sx=0, sy=0;
-    el.addEventListener('pointerdown',e=>{ dragging=true; sx=e.clientX - el.offsetLeft; sy=e.clientY - el.offsetTop; el.setPointerCapture(e.pointerId); });
-    el.addEventListener('pointermove',e=>{ if(!dragging) return; el.style.left=(e.clientX - sx)+'px'; el.style.top=(e.clientY - sy)+'px'; });
-    el.addEventListener('pointerup',e=>{ dragging=false; LS.set(lsKey,{x:el.offsetLeft,y:el.offsetTop}); });
-  }
-  makeDraggable(joystick,'cs3d_joy'); makeDraggable(btnAtk,'cs3d_btnAtk'); makeDraggable(btnS1,'cs3d_btnS1'); makeDraggable(btnS2,'cs3d_btnS2');
-
-  // Joystick movement
-  function enableJoystick(){
-    joystick.classList.remove('hidden'); btnAtk.classList.remove('hidden'); btnS1.classList.remove('hidden'); btnS2.classList.remove('hidden');
-    joystick.addEventListener('pointerdown',startJoy);
-    function startJoy(e){ e.preventDefault(); const rect=joystick.getBoundingClientRect(); moveJoy(e);
-      const move=(ev)=>moveJoy(ev); const end=()=>{ ctrl.vx=ctrl.vz=0; joyInner.style.left='50%'; joyInner.style.top='50%'; window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',end) };
-      window.addEventListener('pointermove',move); window.addEventListener('pointerup',end);
-      function moveJoy(ev){ const x=Math.max(0,Math.min(rect.width, ev.clientX-rect.left)); const y=Math.max(0,Math.min(rect.height, ev.clientY-rect.top)); joyInner.style.left=x+'px'; joyInner.style.top=y+'px'; const nx=(x-rect.width/2)/(rect.width/2); const ny=(y-rect.height/2)/(rect.height/2); const mag=Math.hypot(nx,ny); const k=Math.min(1,mag); ctrl.vx = nx/ (mag||1) * k; ctrl.vz = ny/ (mag||1) * k; }
-    }
-    btnAtk.onpointerdown=()=>ctrl.buttons.atk=true; btnAtk.onpointerup=()=>ctrl.buttons.atk=false;
-    btnS1.onpointerdown=()=>ctrl.buttons.s1=true; btnS1.onpointerup=()=>ctrl.buttons.s1=false;
-    btnS2.onpointerdown=()=>ctrl.buttons.s2=true; btnS2.onpointerup=()=>ctrl.buttons.s2=false;
-  }
-
-  // Keyboard fallback
-  const keys={}; window.addEventListener('keydown',e=>{ keys[e.key.toLowerCase()]=true; }); window.addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
-
-  // Game loop state
-  let player=null; let running=false; let endAt=0; let flag=null; let gate=null;
-
-  function resetGame(){
-    // clear objects
-    [...objects, ...bots, ...projectiles].forEach(o=> scene.remove(o));
-    objects.length=0; bots.length=0; projectiles.length=0; cannons.length=0; // cannons re-add
-    scene.remove(castleGroup); scene.add(castleGroup); buildCastle();
-    for(let i=-4;i<=4;i+=2){ makeCannon(i,-6.5) }
-    // player
-    player = makePlayer();
-    // targets
-    flag = castleGroup.getObjectByName('flag');
-    gate = castleGroup.getObjectByName('gate');
-    // wave
-    spawnWave();
-    // timers
-    endAt = performance.now() + (state.settings.gameMin*60000);
-    running = true; hud.classList.remove('hidden'); victory.classList.add('hidden'); teamName.textContent='🔵';
-    enableJoystick();
-  }
-
-  // Start game flow
-  $('#startBattle').onclick=()=>{ classPicker.classList.add('hidden'); menu.classList.add('hidden'); resetGame(); };
-
-  // Dev placing
-  let placeType='wall';
-  $('#placeType').onchange=(e)=>placeType=e.target.value;
-  canvas.addEventListener('pointerdown',(e)=>{
-    if(!state.dev) return; const p = raycastGround(e.clientX,e.clientY); if(!p) return; placeObject(placeType, p);
-  });
-
-  const placed = [];
-  function placeObject(type, p){
-    let mesh=null;
-    if(type==='wall') { mesh=new THREE.Mesh(new THREE.BoxGeometry(3,2,1), new THREE.MeshStandardMaterial({color:0x6b7280})); mesh.position.set(p.x,1,p.z); }
-    if(type==='tower') { mesh=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.4,4,12), new THREE.MeshStandardMaterial({color:0x818cf8})); mesh.position.set(p.x,2,p.z); }
-    if(type==='river') { mesh=new THREE.Mesh(new THREE.BoxGeometry(6,0.05,2.5), new THREE.MeshStandardMaterial({color:0x2563eb, transparent:true, opacity:0.7, metalness:0.1, roughness:0.2})); mesh.position.set(p.x,0.03,p.z); }
-    if(type==='grass') { mesh=new THREE.Mesh(new THREE.BoxGeometry(6,0.02,6), new THREE.MeshStandardMaterial({color:0x1f7a44})); mesh.position.set(p.x,0.01,p.z); }
-    if(type==='tree') { const t=new THREE.Group(); const trk=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.35,2,8), new THREE.MeshStandardMaterial({color:0x8b5a2b})); trk.position.y=1; const lc=new THREE.Mesh(new THREE.SphereGeometry(1.1,12,12), new THREE.MeshStandardMaterial({color:0x2dd36f})); lc.position.y=2.4; t.add(trk,lc); t.position.set(p.x,0,p.z); mesh=t; }
-    if(type==='cannon'){ const c=makeCannon(p.x,p.z); mesh=c.base; }
-    if(mesh){ scene.add(mesh); placed.push({type, x:p.x, z:p.z}); }
-  }
-
-  // Save/Load map
-  $('#btnSaveMap').onclick=()=>{ const name=$('#mapName').value.trim(); if(!name) return alert('กรุณาตั้งชื่อแผนที่'); state.maps[name]=placed.slice(); LS.set('cs3d_maps',state.maps); refreshMapList(); alert('บันทึกแล้ว'); };
-  $('#btnLoadMap').onclick=()=>{ const name=$('#mapList').value; if(!name||!state.maps[name]) return; // clear old placed
-    placed.splice(0,placed.length); scene.traverse(o=>{ if(o.userData && o.userData.custom) scene.remove(o); });
-    state.maps[name].forEach(it=>{ placeObject(it.type,{x:it.x,z:it.z}); });
-  };
-  $('#btnClearMap').onclick=()=>{ placed.splice(0,placed.length); // hack: reload scene
-    scene.traverse(o=>{ /* keep base */ }); alert('ล้างรายการวัตถุ (รีเฟรชหน้าเพื่อเคลียร์ในฉาก)'); };
-
-  // Simple audio (WebAudio beeps)
-  const AudioCtx = window.AudioContext||window.webkitAudioContext; let actx=null; function beep(freq=440,duration=0.08){ if(!actx){ actx=new AudioCtx(); } const o=actx.createOscillator(); const g=actx.createGain(); o.frequency.value=freq; o.connect(g); g.connect(actx.destination); g.gain.value=0.03; o.start(); setTimeout(()=>{o.stop();}, duration*1000); }
-  window.addEventListener('pointerdown',()=>{ if(!actx) try{ actx=new AudioCtx(); }catch{} }, {once:true});
-
-  // Combat helpers
-  function playerAttack(){ if(!player || player.userData.dead) return; const dir = new THREE.Vector3(); camera.getWorldDirection(dir); dir.y=0; dir.normalize(); const from = player.position.clone().add(new THREE.Vector3(0,1,0)); const to = from.clone().add(dir.multiplyScalar(20)); shoot(from, to, 16, player); beep(660,0.05);
-  }
-  function skill1(){ if(!player) return; const c=player.userData.class; if(c==='archer'){ // multishot
-      for(let a=-0.2;a<=0.2;a+=0.1){ const d=new THREE.Vector3(); camera.getWorldDirection(d); d.applyAxisAngle(new THREE.Vector3(0,1,0),a); const from=player.position.clone().add(new THREE.Vector3(0,1,0)); shoot(from, from.clone().add(d.multiplyScalar(20)), 18, player);} beep(880,0.08);
-    } else if(c==='sword' || c==='hammer' || c==='shield'){ // spin / slam / bash as short-range AOE
-      bots.forEach(b=>{ if(b.visible && b.position.distanceTo(player.position)<3) applyDamage(b, player.userData.atk*1.5); });
-      beep(240,0.1);
-    } else if(c==='bomb'){ // throw bomb (slow big)
-      const d=new THREE.Vector3(); camera.getWorldDirection(d); const from=player.position.clone().add(new THREE.Vector3(0,1,0)); shoot(from, from.clone().add(d.multiplyScalar(12)), 10, player);
-    } else if(c==='dagger'){ // dash forward
-      const d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize(); player.position.add(d.multiplyScalar(2.2));
-    }
-  }
-  function skill2(){ if(!player) return; const c=player.userData.class; if(c==='shield'){ player.userData.armor += 20; setTimeout(()=>player.userData.armor -= 20, 4000); beep(520,0.06); }
-    else if(c==='archer'){ // roll back
-      const d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize(); player.position.add(d.multiplyScalar(-2)); }
-    else { // generic heavy hit
-      bots.forEach(b=>{ if(b.visible && b.position.distanceTo(player.position)<2.5) applyDamage(b, player.userData.atk*2); }); beep(300,0.1); }
-  }
-
-  // Buttons bind
-  btnAtk.addEventListener('click', playerAttack); btnS1.addEventListener('click', skill1); btnS2.addEventListener('click', skill2);
-
-  // Camera follow
-  function updateCamera(dt){ if(!player) return; const target = player.position.clone().add(new THREE.Vector3(0,2,0)); const back = new THREE.Vector3(); camera.getWorldDirection(back); back.y=0; back.normalize(); const behind = player.position.clone().add(new THREE.Vector3(0,2,0)).add(back.multiplyScalar(-6)); camera.position.lerp(behind, 1-Math.pow(0.001, dt)); camera.lookAt(target); }
-
-  // Movement
-  const speed=8; function updatePlayer(dt){ if(!player || player.userData.dead) return; let vx = ctrl.vx; let vz = -ctrl.vz; if(keys['w']) vz -= 1; if(keys['s']) vz += 1; if(keys['a']) vx -= 1; if(keys['d']) vx += 1; const mag=Math.hypot(vx,vz); if(mag>0){ vx/=mag; vz/=mag; player.position.x += vx*speed*dt; player.position.z += vz*speed*dt; // face moving dir
-      const yaw = Math.atan2(vx, vz); player.rotation.y = yaw; }
-    // basic gate collision clamp
-    player.position.x = Math.max(-25, Math.min(25, player.position.x)); player.position.z = Math.max(-25, Math.min(25, player.position.z));
-  }
-
-  // Bots AI
-  function updateBots(dt){
-    bots.forEach(b=>{
-      if(!b.visible){ if(b.userData.respawn && performance.now()>b.userData.respawn){ b.visible=true; b.userData.dead=false; b.userData.hp=Number($('#botHP').value)||200; b.position.set(-10+Math.random()*20,1,12+Math.random()*2);} return; }
-      const target = gate.userData.hp>0? gate.position : flag.position;
-      const v = new THREE.Vector3().subVectors(target,b.position); v.y=0; const d=v.length(); if(d>0.001) v.normalize();
-      b.position.add(v.multiplyScalar( (b.userData.type==='elephant'?2.6:3.2) * dt));
-      // attack if near
-      if(d<2){ if(target===gate.position) applyDamage(gate, b.userData.atk*dt); else applyDamage(flag, b.userData.atk*dt); }
-      // take damage from player projectiles
-    });
-  }
-
-  // Cannons auto fire
-  function updateCannons(dt){
-    cannons.forEach(c=>{ c.t += dt; if(c.t>2){ c.t=0; // shoot towards player area
-        const from = c.barrel.position.clone().add(new THREE.Vector3(0,0,0)); const to = player? player.position.clone(): new THREE.Vector3(0,0,5); shoot(from, to, 14, c.base); }
-    });
-  }
-
-  // Projectiles update
-  function updateProjectiles(dt){
-    for(let i=projectiles.length-1;i>=0;i--){ const m=projectiles[i]; m.position.add(m.userData.v.clone().multiplyScalar(dt)); m.userData.ttl-=dt; if(m.userData.ttl<=0){ scene.remove(m); projectiles.splice(i,1); continue; }
-      // hit tests
-      // vs bots
-      for(const b of bots){ if(!b.visible) continue; if(m.position.distanceTo(b.position)<1){ applyDamage(b, (m.userData.owner?.userData?.atk||25)); scene.remove(m); projectiles.splice(i,1); beep(120,0.04); break; } }
-      if(!projectiles[i]) continue;
-      // vs gate
-      if(gate && m.position.distanceTo(gate.position)<1.5){ applyDamage(gate, (m.userData.owner?.userData?.atk||20)); scene.remove(m); projectiles.splice(i,1); beep(200,0.04); continue; }
-      // vs flag
-      if(flag && m.position.distanceTo(flag.position)<1.8){ applyDamage(flag, (m.userData.owner?.userData?.atk||20)); scene.remove(m); projectiles.splice(i,1); beep(260,0.04); continue; }
-    }
-  }
-
-  // UI updates
-  function updateUI(){
-    if(!running) return;
-    const left = Math.max(0, endAt - performance.now());
-    const m=Math.floor(left/60000); const s=Math.floor((left%60000)/1000).toString().padStart(2,'0'); timerEl.textContent=`${m}:${s}`;
-    const flagPct = Math.max(0, (flag.userData.hp||1) / (flag.userData.maxHP||1)); flagBar.style.width=(flagPct*100)+'%';
-    const pPct = player? Math.max(0, player.userData.hp / player.userData.maxHP):1; pBar.style.width=(pPct*100)+'%';
-  }
-
-  function checkEnd(){ if(!running) return; if(flag.userData.hp<=0){ endGame(true); } else if(performance.now()>=endAt){ endGame(false,true); } }
-
-  function endGame(victorySide, draw=false){ running=false; victory.classList.remove('hidden'); if(draw){ victoryTitle.textContent='เสมอ'; } else if(victorySide){ victoryTitle.textContent='ชัยชนะ!'; state.coins += 100; updateCoins(); renderShop(); } else { victoryTitle.textContent='พ่ายแพ้'; }
-  }
-  $('#btnBackHome').onclick=()=>{ hud.classList.add('hidden'); menu.classList.remove('hidden'); victory.classList.add('hidden'); };
-  $('#btnReplay').onclick=()=>{ victory.classList.add('hidden'); resetGame(); };
-
-  // Resize
-  function onResize(){ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); }
-  addEventListener('resize', onResize); onResize();
-
-  // Animate
-  function animate(){ requestAnimationFrame(animate); const dt=clock.getDelta(); if(running){ updatePlayer(dt); updateBots(dt); updateCannons(dt); updateProjectiles(dt); updateCamera(dt); updateUI(); checkEnd(); } renderer.render(scene,camera); }
-  animate();
-
-})();
+}
 </script></body>
 </html>
