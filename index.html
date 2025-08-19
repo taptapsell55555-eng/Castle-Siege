@@ -49,3 +49,442 @@
   <script src="script.js"></script>
 </body>
 </html>
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Upload, Send, MessageSquare, Paintbrush, Sparkles, Volume2, LinkIcon, Images, Stars, Rocket, Heart, Briefcase, Coins, MoveRight } from "lucide-react";
+
+/*
+  Mystic Galaxy — Single-file React app
+  Theme: Galaxy / Stars, Professional UI (Thai language)
+  Features:
+  - Articles with images or short clips
+  - Community chat (text + image upload, client-side)
+  - Mini-game: เสี่ยงเซียมซีออนไลน์ (needs 5 taps before a stick drops)
+  - Fortune categories: การงาน / ความรัก / โชคลาภ
+  - 100 fortune slips (procedurally generated but unique & deterministic per session)
+  - Sound & particle effects
+  - AI ดูดวง (rule-based local demo)
+  - Affiliate area & Ad slots
+  - Product (ของมงคล) showcase with contact section
+
+  Notes:
+  - This is front-end only; replace mock handlers with your back-end as needed.
+  - Uses Tailwind classes; ensure Tailwind & shadcn/ui are available in your environment.
+*/
+
+// ---------- Galaxy Background Utilities ----------
+const StarsBG: React.FC = () => (
+  <div aria-hidden className="fixed inset-0 -z-10 bg-black">
+    {/* Layered star fields using gradients & radial spots */}
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(18,16,60,0.8),rgba(0,0,0,1))]" />
+    <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(2px_2px_at_20px_30px,white_50%,transparent_60%),radial-gradient(1px_1px_at_120px_80px,white_60%,transparent_60%),radial-gradient(1px_1px_at_200px_150px,white_60%,transparent_60%),radial-gradient(2px_2px_at_320px_220px,white_50%,transparent_60%),radial-gradient(1px_1px_at_520px_40px,white_60%,transparent_60%)] bg-[length:600px_600px] animate-[scrollstars_60s_linear_infinite]" />
+    <div className="pointer-events-none absolute inset-0 opacity-40 [background:radial-gradient(2px_2px_at_40px_90px,white_50%,transparent_60%),radial-gradient(1px_1px_at_240px_140px,white_60%,transparent_60%),radial-gradient(1px_1px_at_440px_190px,white_60%,transparent_60%),radial-gradient(2px_2px_at_640px_20px,white_50%,transparent_60%)] bg-[length:800px_800px] animate-[scrollstars_90s_linear_infinite]" />
+    <style>{`@keyframes scrollstars { from { background-position: 0 0;} to { background-position: -1000px 1000px;} }`}</style>
+  </div>
+);
+
+// ---------- Utilities & Mock Data ----------
+const sampleArticles = [
+  {
+    id: 1,
+    title: "พลังแห่งความเชื่อ: เริ่มต้นที่ใจ",
+    cover: "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600&auto=format&fit=crop",
+    excerpt: "การตั้งเจตนาเปรียบเหมือนการยิงดาวตก—หากใจนิ่งพอก็จะไปถึงปลายทาง",
+  },
+  {
+    id: 2,
+    title: "วิธีรับพลังจักรวาลด้วยการหายใจ 3 จังหวะ",
+    cover: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1600&auto=format&fit=crop",
+    excerpt: "ฝึกง่าย ๆ ทุกเช้า เติมพลังให้วันใหม่ด้วยลมหายใจและสติ",
+  },
+  {
+    id: 3,
+    title: "เสียงสั่นของชามทิเบตกับการสะกดจิตเบา ๆ",
+    cover: "https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?q=80&w=1600&auto=format&fit=crop",
+    excerpt: "ปล่อยความคิดให้ลอยเหมือนฝุ่นละอองกลางอากาศ",
+  },
+];
+
+const sampleAffiliates = [
+  { id: 1, name: "Mystic Deck Pro", url: "#", img: "https://images.unsplash.com/photo-1543946602-a0fce8117698?q=80&w=1200&auto=format&fit=crop" },
+  { id: 2, name: "Lucky Charm+", url: "#", img: "https://images.unsplash.com/photo-1610375229650-9971f28f0b0f?q=80&w=1200&auto=format&fit=crop" },
+  { id: 3, name: "Zodiac Guide App", url: "#", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop" },
+];
+
+const sampleProducts = [
+  { id: 1, name: "สร้อยหินนำโชค จักรวาล 7 สี", price: "1,290฿", img: "https://images.unsplash.com/photo-1515562141207-7a88fb7cd47f?q=80&w=1200&auto=format&fit=crop", contact: "LINE: @mystic" },
+  { id: 2, name: "กำไลไทเกอร์อาย เรียกทรัพย์", price: "890฿", img: "https://images.unsplash.com/photo-1599643476532-004b3b4162fd?q=80&w=1200&auto=format&fit=crop", contact: "FB: mystic.galaxy" },
+  { id: 3, name: "ผ้ายันต์ดวงดาว ป้องกันเคราะห์", price: "590฿", img: "https://images.unsplash.com/photo-1612198182432-50e0bd5d80fd?q=80&w=1200&auto=format&fit=crop", contact: "Tel: 08x-xxx-xxxx" },
+];
+
+// Generate 100 fortune slips across categories using templates (unique per session)
+const buildFortunes = () => {
+  const categories = [
+    { key: "work", label: "การงาน", icon: <Briefcase className="inline h-4 w-4" /> },
+    { key: "love", label: "ความรัก", icon: <Heart className="inline h-4 w-4" /> },
+    { key: "luck", label: "โชคลาภ", icon: <Coins className="inline h-4 w-4" /> },
+  ] as const;
+
+  const basePhrases = {
+    work: [
+      "โอกาสใหม่กำลังเข้ามา จงเตรียมผลงานให้พร้อม",
+      "มีคนเห็นความสามารถ แต่ต้องสื่อสารให้ชัดเจน",
+      "อย่ากลัวคำวิจารณ์ มันผลักให้คุณโต",
+      "ระวังงานล้น แบ่งเวลาและขอความช่วยเหลือ",
+      "การเรียนรู้ทักษะใหม่จะเปิดประตูสำคัญ",
+      "เจรจาธุรกิจมีลุ้น สำเร็จถ้าวางแผนล่วงหน้า",
+      "อย่าผัดวันประกันพรุ่ง—ทำทันทีจะเสร็จเร็ว",
+      "ผู้ใหญ่เมตตาแต่ต้องลงมือก่อน",
+      "รายได้เสริมกำลังเกิดจากงานอดิเรก",
+      "เปลี่ยนวิธีทำงานเล็กน้อย ผลลัพธ์จะต่างใหญ่",
+    ],
+    love: [
+      "สื่อสารตรง ๆ ลดการคาดเดา ความรักจะชัดขึ้น",
+      "คนโสดมีคนแอบมองในที่ทำงาน/สังคม",
+      "อดีตที่ค้างคา ควรพูดจากันด้วยเหตุผล",
+      "อย่าเปรียบเทียบความสัมพันธ์กับคนอื่น",
+      "ความเข้าใจจะเกิดเมื่อคุณยอมฟัง",
+      "การเดินทางสั้น ๆ จะพาให้พบคนถูกใจ",
+      "ความหวานเพิ่มได้ด้วยการลงมือทำสิ่งเล็ก ๆ",
+      "ความซื่อสัตย์คือของขวัญที่คู่ควร",
+      "ปล่อยวางความคาดหวังบ้าง ความรักจะเบาสบาย",
+      "คนรักต้องการกำลังใจ ไม่ใช่คำสั่ง",
+    ],
+    luck: [
+      "ดวงการเงินขยับดีขึ้นจากความขยัน",
+      "เสี่ยงโชคเล็ก ๆ พอสนุก อย่าเกินตัว",
+      "ตัวเลขที่เกี่ยวข้องกับบ้าน/ครอบครัวให้โชค",
+      "ของเก่าที่ไม่ได้ใช้สามารถแปลงเป็นเงิน",
+      "โชคดีมาเมื่อได้ช่วยเหลือผู้อื่นก่อน",
+      "เอกสารการเงินต้องตรวจซ้ำ ป้องกันพลาด",
+      "ลงทุนระยะยาวดีกว่าหวังผลเร็ว",
+      "ผู้ใหญ่ให้คำแนะนำเรื่องเงินที่มีค่า",
+      "โอกาสจากโลกออนไลน์ช่วยเพิ่มรายได้",
+      "อย่าซื้อด้วยอารมณ์—คิดแล้วค่อยจ่าย",
+    ],
+  } as const;
+
+  // combine templates to get 100 slips
+  const slips: { id: number; category: "work"|"love"|"luck"; text: string; weight: number }[] = [];
+  let id = 1;
+  for (let c of ["work","love","luck"] as const) {
+    for (let i = 0; i < 34; i++) {
+      const base = basePhrases[c][i % basePhrases[c].length];
+      const flavor = [
+        "วันนี้ลงมือพรุ่งนี้เห็นผล",
+        "สัปดาห์นี้ใช้ความอดทน",
+        "เดือนนี้สิ่งที่ตั้งใจจะขยับ",
+        "โชคเกิดจากวินัยซ้ำ ๆ",
+        "อย่ากลัวเริ่มใหม่",
+        "เชื่อในความสามารถของตน",
+      ][i % 6];
+      // weight determines chance to appear as "แม่น" (mock accuracy)
+      const weight = (i % 5) + 1; // 1..5
+      slips.push({ id: id++, category: c, text: `${base} — ${flavor}`, weight });
+    }
+  }
+  // trim to exactly 100
+  return slips.slice(0, 100);
+};
+
+const FORTUNES = buildFortunes();
+
+// ---------- Simple Audio (WebAudio API chime) ----------
+function useChime() {
+  const ctxRef = useRef<AudioContext | null>(null);
+  const ensure = () => {
+    if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    return ctxRef.current!;
+  };
+  const play = (type: "tap" | "drop" | "reveal") => {
+    const ctx = ensure();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    if (type === "tap") o.frequency.value = 660;
+    if (type === "drop") o.frequency.value = 440;
+    if (type === "reveal") o.frequency.value = 880;
+    g.gain.value = 0.001;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    const t0 = ctx.currentTime;
+    g.gain.exponentialRampToValueAtTime(0.2, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.00001, t0 + 0.25);
+    o.stop(t0 + 0.27);
+  };
+  return { play };
+}
+
+// ---------- Components ----------
+const SectionTitle: React.FC<{ icon?: React.ReactNode; title: string; subtitle?: string }>
+= ({ icon, title, subtitle }) => (
+  <div className="mb-6 flex items-end justify-between">
+    <div>
+      <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+        {icon} {title}
+      </h2>
+      {subtitle && (
+        <p className="text-sm text-white/70 mt-1">{subtitle}</p>
+      )}
+    </div>
+    <Badge className="bg-indigo-600/60 backdrop-blur border border-white/10">Mystic Galaxy</Badge>
+  </div>
+);
+
+// Articles Grid
+const Articles: React.FC = () => (
+  <div className="grid md:grid-cols-3 gap-6">
+    {sampleArticles.map((a) => (
+      <Card key={a.id} className="bg-white/5 border-white/10 backdrop-blur hover:bg-white/10 transition">
+        <CardHeader className="p-0">
+          <div className="relative">
+            <img src={a.cover} alt={a.title} className="h-44 w-full object-cover rounded-t-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-t-2xl" />
+            <CardTitle className="absolute bottom-3 left-4 text-white text-lg drop-shadow">{a.title}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 text-white/80 text-sm">{a.excerpt}</CardContent>
+      </Card>
+    ))}
+  </div>
+);
+
+// Community Chat (client side)
+const ChatBox: React.FC = () => {
+  const [messages, setMessages] = useState<{ id:number; text:string; img?:string }[]>([
+    { id: 1, text: "สวัสดีชาวกาแล็คซี่ ✨ แบ่งปันประสบการณ์ศรัทธากันได้ที่นี่" },
+  ]);
+  const [text, setText] = useState("");
+  const [img, setImg] = useState<string | undefined>(undefined);
+
+  const addMessage = () => {
+    if (!text && !img) return;
+    setMessages((m) => [...m, { id: Date.now(), text, img }]);
+    setText("");
+    setImg(undefined);
+  };
+
+  return (
+    <Card className="bg-white/5 border-white/10 backdrop-blur">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2"><MessageSquare className="h-5 w-5"/> ช่องพูดคุยชุมชน</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="h-64 overflow-y-auto space-y-3 pr-2">
+          {messages.map((m) => (
+            <div key={m.id} className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/90">
+              <p className="whitespace-pre-wrap text-sm">{m.text}</p>
+              {m.img && (
+                <img src={m.img} alt="upload" className="mt-2 max-h-48 rounded-lg" />
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="พิมพ์ข้อความ..."
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+          />
+          <label className="cursor-pointer inline-flex items-center gap-2 text-white/80 text-sm px-3 py-2 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20">
+            <Upload className="h-4 w-4"/>
+            รูปภาพ
+            <input type="file" accept="image/*" className="hidden" onChange={(e)=>{
+              const f = e.target.files?.[0];
+              if (!f) return; const url = URL.createObjectURL(f); setImg(url);
+            }}/>
+          </label>
+          <Button onClick={addMessage} className="bg-indigo-600 hover:bg-indigo-500">
+            <Send className="h-4 w-4 mr-1"/> ส่ง
+          </Button>
+        </div>
+        {img && (
+          <div className="text-white/80 text-xs">รูปถูกแนบพร้อมส่งแล้ว</div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// เสี่ยงเซียมซีออนไลน์
+const FortuneSticks: React.FC = () => {
+  const [category, setCategory] = useState<"work"|"love"|"luck">("work");
+  const [tapCount, setTapCount] = useState(0);
+  const [result, setResult] = useState<{ id:number; text:string } | null>(null);
+  const [shaking, setShaking] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const { play } = useChime();
+
+  const pool = useMemo(() => FORTUNES.filter(f => f.category === category), [category]);
+
+  // Weighted random to simulate "แม่น" feel
+  const pickWeighted = () => {
+    const sum = pool.reduce((s,p)=>s+p.weight,0);
+    let r = Math.random()*sum;
+    for (let p of pool) { r -= p.weight; if (r <= 0) return p; }
+    return pool[0];
+  };
+
+  const onTap = () => {
+    if (!muted) play("tap");
+    setShaking(true);
+    setTimeout(()=> setShaking(false), 180);
+    setTapCount((c)=>{
+      const next = c+1;
+      if (next >= 5) {
+        if (!muted) play("drop");
+        const pick = pickWeighted();
+        setTimeout(()=>{ if(!muted) play("reveal"); setResult({ id: pick.id, text: pick.text }); }, 300);
+        return 0; // reset taps after drop
+      }
+      return next;
+    });
+  };
+
+  return (
+    <Card className="bg-white/5 border-white/10 backdrop-blur overflow-hidden">
+      <CardHeader className="flex-row items-center justify-between">
+        <CardTitle className="text-white flex items-center gap-2"><Sparkles className="h-5 w-5"/> เสี่ยงเซียมซีออนไลน์</CardTitle>
+        <div className="flex items-center gap-3">
+          <Select value={category} onValueChange={(v)=>setCategory(v as any)}>
+            <SelectTrigger className="w-40 bg-white/10 border-white/20 text-white">
+              <SelectValue placeholder="เลือกเรื่องทำนาย" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="work">การงาน</SelectItem>
+              <SelectItem value="love">ความรัก</SelectItem>
+              <SelectItem value="luck">โชคลาภ</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2 text-white/80 text-sm">
+            <Volume2 className="h-4 w-4" /> เสียง
+            <Switch checked={!muted} onCheckedChange={(v)=>setMuted(!v)} />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid md:grid-cols-2 gap-6 items-center">
+          <div className="relative h-72 md:h-80 flex items-center justify-center">
+            {/* Stick box */}
+            <motion.div
+              animate={shaking ? { rotate: [0, -2, 2, -1, 1, 0] } : {}}
+              transition={{ duration: 0.18 }}
+              className="relative w-48 h-56 bg-gradient-to-b from-amber-300 to-amber-600 rounded-2xl shadow-xl border border-amber-200/50"
+            >
+              <div className="absolute inset-x-3 top-3 bottom-3 rounded-xl bg-amber-100/40"/>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-xs px-3 py-1 rounded-full shadow">
+                กล่องเซียมซี
+              </div>
+              {/* sticks peeking */}
+              <div className="absolute top-6 inset-x-10 flex justify-center gap-1">
+                {Array.from({ length: 14 }).map((_,i)=>(
+                  <div key={i} className="w-2 h-14 bg-red-700/80 rounded-full"/>
+                ))}
+              </div>
+            </motion.div>
+            {/* Drop area */}
+            <AnimatePresence>
+              {result && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute bottom-0 translate-y-10"
+                >
+                  <div className="w-28 h-28 rounded-xl bg-red-700/90 border border-white/20 flex items-center justify-center text-white font-bold shadow-xl">
+                    เลขที่ {result.id}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <div className="space-y-4">
+            <p className="text-white/80 text-sm">แตะปุ่ม "เขย่า" ต่อเนื่องประมาณ 5 ครั้ง ไม้เซียมซีจะหล่น แล้วจึงแสดงคำทำนายตามหมวดที่เลือก</p>
+            <Button onClick={onTap} className="bg-fuchsia-600 hover:bg-fuchsia-500">
+              <Stars className="h-4 w-4 mr-1"/> เขย่าเสี่ยงทาย (แตะ {Math.max(0,5 - tapCount)}/5)
+            </Button>
+            <Separator className="bg-white/10"/>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 min-h-[96px] text-white">
+              {result ? (
+                <div>
+                  <div className="text-sm mb-1 text-white/70">คำทำนาย:</div>
+                  <div className="font-medium leading-relaxed">{result.text}</div>
+                </div>
+              ) : (
+                <div className="text-white/60 text-sm">ยังไม่มีคำทำนาย — เขย่ากล่องเพื่อเริ่มต้น</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// AI ดูดวง (local demo)
+const AIDuDuang: React.FC = () => {
+  const [birth, setBirth] = useState("");
+  const [gender, setGender] = useState("ไม่ระบุ");
+  const [age, setAge] = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<string | null>(null);
+
+  const generate = () => {
+    // Simple rule-based reading using birth month & weekday
+    try {
+      const d = birth ? new Date(birth) : new Date();
+      const month = d.getMonth()+1;
+      const weekday = d.getDay();
+      const tone = [
+        "โฟกัสที่วินัยเล็ก ๆ จะปลดล็อกเรื่องใหญ่",
+        "การให้ก่อน จะดึงดูดสิ่งดีกลับมา",
+        "อย่ากลัวปรับแผน ความสำเร็จอยู่ไม่ไกล",
+        "ระวังคำพูด แต่กล้าสื่อสาร",
+        "มีข่าวดีผ่านผู้ใหญ่หรือครอบครัว",
+        "โอกาสจากออนไลน์กำลังใกล้เข้ามา",
+        "ใจนิ่ง ๆ แล้วค่อยตัดสินใจ",
+      ][weekday];
+      const field = /งาน|งาน|อาชีพ|โปรเจกต์|ธุรกิจ/.test(question) ? "การงาน" : /รัก|ความรัก|แฟน|คู่|คนคุย/.test(question) ? "ความรัก" : "โชคลาภ/การเงิน";
+      const signHint = month % 3 === 0 ? "ช่วงปลายเดือนพลังขึ้นเด่น" : month % 3 === 1 ? "สัปดาห์หน้าเหมาะกับการเริ่มใหม่" : "กลางเดือนมีเกณฑ์ขยับ";
+      const g = gender;
+      const a = parseInt(age||"0",10);
+      const ageNote = a>0 ? (a<25? "ใช้ความสดใหม่เป็นข้อได้เปรียบ" : a<40? "ประสบการณ์จะต่อยอดเป็นความสำเร็จ": a<60? "ความนิ่งและเครือข่ายคือกุญแจ": "ใส่ใจสุขภาพเพิ่มจะเสริมดวง") : "ตั้งเป้าหมายให้ชัด จะช่วยให้พลังไหลไปทางเดียว";
+      setAnswer(`${field}: ${tone}. ${signHint}. ${ageNote}.`);
+    } catch {
+      setAnswer("โปรดตรวจสอบรูปแบบวันเกิดอีกครั้ง");
+    }
+  };
+
+  return (
+    <Card className="bg-white/5 border-white/10 backdrop-blur">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2"><Sparkles className="h-5 w-5"/> AI ดูดวง (เดโม่ภายในเว็บ)</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid md:grid-cols-4 gap-3">
+          <div className="space-y-2">
+            <div className="text-white/80 text-sm">วันเกิด</div>
+            <Input type="date" value={birth} onChange={(e)=>setBirth(e.target.value)} className="bg-white/10 border-white/20 text-white"/>
+          </div>
+          <div className="space-y-2">
+            <div className="text-white/80 text-sm">เพศ</div>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectValue placeholder="เลือกเพศ"/>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ชาย">ชาย</SelectItem>
+                <SelectItem value="หญิง">หญิง</SelectItem>
+                <SelectItem value="ไม่ระบุ">ไม่ระบุ</SelectItem>
+              </SelectContent>
+      
