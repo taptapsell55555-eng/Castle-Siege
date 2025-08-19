@@ -1,123 +1,13 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mystic Galaxy</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>🌌 Mystic Galaxy</h1>
-    <nav>
-      <a href="#articles">บทความ</a>
-      <a href="#gallery">ภาพ/คลิป</a>
-      <a href="#chat">พูดคุย</a>
-      <a href="#fortune">ดูดวง</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="articles">
-      <h2>✨ บทความล่าสุด</h2>
-      <p>โพสต์เนื้อหาเกี่ยวกับความเชื่อ จักรวาล และพลังงานบวกที่นี่</p>
-    </section>
-
-    <section id="gallery">
-      <h2>🪐 ภาพและคลิป</h2>
-      <p>ใส่ภาพ/วิดีโอสั้นๆ เกี่ยวกับกาแล็คซี่หรือความเชื่อได้</p>
-    </section>
-
-    <section id="chat">
-      <h2>💬 ห้องพูดคุย</h2>
-      <div id="chat-box"></div>
-      <input type="text" id="chat-input" placeholder="พิมพ์ข้อความ...">
-      <button onclick="sendMessage()">ส่ง</button>
-    </section>
-
-    <section id="fortune">
-      <h2>🔮 ดูดวงมินิ</h2>
-      <button onclick="drawFortune()">สุ่มคำทำนาย</button>
-      <p id="fortune-result"></p>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 Mystic Galaxy</p>
-  </footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mystic Galaxy</title>
-  <!-- Tailwind CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="bg-gradient-to-b from-black via-purple-900 to-blue-900 text-white">
-
-  <!-- Header -->
-  <header class="p-6 text-center bg-black/50 sticky top-0 z-50">
-    <h1 class="text-4xl font-bold text-cyan-300">🌌 Mystic Galaxy</h1>
-    <nav class="mt-4 space-x-6">
-      <a href="#articles" class="hover:text-cyan-100">บทความ</a>
-      <a href="#gallery" class="hover:text-cyan-100">ภาพ/คลิป</a>
-      <a href="#chat" class="hover:text-cyan-100">พูดคุย</a>
-      <a href="#fortune" class="hover:text-cyan-100">ดูดวง</a>
-    </nav>
-  </header>
-
-  <!-- Main -->
-  <main class="space-y-16 p-6">
-
-    <!-- บทความ -->
-    <section id="articles">
-      <h2 class="text-3xl font-semibold mb-4">✨ บทความล่าสุด</h2>
-      <div class="grid md:grid-cols-2 gap-6">
-        <article class="p-4 bg-black/30 rounded-lg shadow-lg">
-          <h3 class="text-xl font-bold mb-2">เรื่องเล่าความเชื่อจักรวาล</h3>
-          <p>เนื้อหาเกี่ยวกับพลังงานจักรวาล ความเชื่อ และการทำนายดวงชะตา</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- ภาพ/คลิป -->
-    <section id="gallery">
-      <h2 class="text-3xl font-semibold mb-4">🪐 ภาพและคลิป</h2>
-      <div class="grid md:grid-cols-3 gap-4">
-        <img src="assets/images/galaxy1.jpg" alt="กาแล็คซี่" class="rounded-lg shadow-lg">
-        <img src="assets/images/galaxy2.jpg" alt="ดวงดาว" class="rounded-lg shadow-lg">
-      </div>
-    </section>
-
-    <!-- ห้องพูดคุย -->
-    <section id="chat">
-      <h2 class="text-3xl font-semibold mb-4">💬 ห้องพูดคุย</h2>
-      <div id="chat-box" class="bg-black/40 rounded-lg p-4 h-64 overflow-y-auto mb-2"></div>
-      <input type="text" id="chat-input" placeholder="พิมพ์ข้อความ..." class="p-2 rounded-l-md w-3/4">
-      <button onclick="sendMessage()" class="p-2 bg-cyan-400 rounded-r-md hover:bg-cyan-500">ส่ง</button>
-    </section>
-
-    <!-- ดูดวง/เสี่ยงเซียมซี -->
-    <section id="fortune">
-      <h2 class="text-3xl font-semibold mb-4">🔮 ดูดวง & เสี่ยงเซียมซี</h2>
-      <div class="space-y-4">
-        <button onclick="drawFortune()" class="p-3 bg-purple-500 rounded-md hover:bg-purple-600">สุ่มคำทำนาย</button>
-        <p id="fortune-result" class="text-lg mt-2"></p>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="text-center p-4 bg-black/50">
-    © 2025 Mystic Galaxy
-  </footer>
-
-  <script src="js/script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mystic Galaxy 🌌</title>
+  </head>
+  <body class="bg-black text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
